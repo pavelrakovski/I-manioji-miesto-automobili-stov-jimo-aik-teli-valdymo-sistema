@@ -3,11 +3,7 @@
 Tai mano kursinis projektas, skirtas automobilių aikštelės valdymui. Programa leidžia registruoti mašinas, skaičiuoti laiką ir kainą, o visi duomenys saugomi SQLite duomenų bazėje.
 
 ## 1. Kaip viskas veikia
-Programa veikia per konsolę (terminalą). Paleidus `KURSINIS DARBAS.py`, atsidaro meniu, kuriame galima:
-- Įvesti įvažiuojantį automobilį (reikia nurodyti numerį ir tipą).
-- Užregistruoti išvažiavimą (sistema pati paskaičiuoja kainą).
-- Pažiūrėti, kiek laisvų vietų liko.
-- Pakeisti valandinį kainos tarifą.
+Programa veikia per konsolę (terminalą). Paleidus `KURSINIS DARBAS.py`, atsidaro meniu, kuriame galima valdyti visą aikštelės procesą realiu laiku: registruoti įvažiavimus, išvažiavimus ir stebėti statistiką.
 
 ---
 
@@ -57,31 +53,29 @@ class DBValdiklis:
 ```
 
 ### Ryšiai tarp objektų
-
-**Kompozicija (Composition):**
-`ParkingoSistema` klasė savyje sukuria `DBValdiklis` objektą. Be šio objekto sistema negalėtų funkcionuoti.
-```python
-class ParkingoSistema:
-    def __init__(self):
-        self.db = DBValdiklis() # Kompozicija
-```
-
-**Agregacija (Aggregation):**
-Aikštelės objektas talpina automobilių objektus, tačiau automobiliai gali egzistuoti ir nepriklausomai nuo pačios aikštelės.
-```python
-class Aikstele:
-    def __init__(self):
-        self.automobiliai = [] # Agregacija
-```
+- **Kompozicija (Composition):** `ParkingoSistema` savyje sukuria `DBValdiklis` objektą. Be šio objekto sistema negalėtų funkcionuoti.
+- **Agregacija (Aggregation):** Aikštelės objektas talpina automobilių objektus, tačiau automobiliai gali egzistuoti ir nepriklausomai nuo pačios aikštelės.
 
 ---
 
-## 3. Testavimas
+## 3. SOLID principų taikymas
 
-Programos veikimą patikrinau naudodamas `unittest` biblioteką. Štai atlikti testai:
+Projekte laikausi **SOLID** principų, kurie užtikrina kodo lankstumą:
+
+1. **S (Single Responsibility):** Kiekviena klasė atsakinga tik už vieną dalyką (pvz., `DBValdiklis` tik už duomenis, `ParkingoSistema` tik už logiką).
+2. **O (Open/Closed):** Sistema yra atvira naujiems transporto tipams (pvz., galima lengvai pridėti `Motociklas`), nekeičiant esamo kodo.
+3. **L (Liskov Substitution):** Bet kurią transporto priemonę galime pakeisti jos „vaiku“ (pvz., `Elektromobilis`), ir programa veiks teisingai.
+4. **I (Interface Segregation):** Klasės naudoja tik tuos metodus, kurių joms tikrai reikia.
+5. **D (Dependency Inversion):** Aukšto lygio logika priklauso nuo abstrakcijų (`TransportoPriemone`), o ne nuo konkrečių klasių.
+
+---
+
+## 4. Testavimas
+
+Programos veikimą patikrinau naudodamas `unittest` biblioteką:
 
 ### 1. Kainos skaičiavimo testas
-Tikrinama, ar sistema teisingai suskaičiuoja kainą paprastam automobiliui už tam tikrą valandų kiekį.
+Tikrinama, ar sistema teisingai suskaičiuoja kainą paprastam automobiliui.
 ```python
 def test_kainos_skaiciavimas(self):
     rezultatas = self.sistema.paskaiciuoti_kaina(valandos=2, tarifas=1.0)
@@ -89,32 +83,18 @@ def test_kainos_skaiciavimas(self):
 ```
 
 ### 2. Elektromobilio nuolaidos testas
-Tikrinama, ar polimorfizmo principas veikia ir elektromobiliui teisingai pritaikoma nuolaida.
+Tikrinama, ar elektromobiliui teisingai pritaikoma 50% nuolaida.
 ```python
 def test_elektromobilio_nuolaida(self):
     rezultatas = self.elektro_auto.skaiciuoti_tarifa(1.0)
     self.assertEqual(rezultatas, 0.5)
 ```
 
-### 3. Laisvų vietų testas
-Testuojama, ar įvažiavus automobiliui laisvų vietų skaičius aikštelėje sumažėja vienetu.
-```python
-def test_laisvos_vietos(self):
-    pradinis = self.sistema.laisvos_vietos
-    self.sistema.registruoti_ivaziavima("AAA111")
-    self.assertEqual(self.sistema.laisvos_vietos, pradinis - 1)
-```
-
-### 4. Singleton modelio patikra
-Užtikrinama, kad sukūrus kelis valdiklio objektus, jie visi rodytų į tą pačią atminties vietą.
-```python
-def test_singleton_db(self):
-    db1 = DBValdiklis()
-    db2 = DBValdiklis()
-    self.assertIs(db1, db2)
-```
+### 3. Singleton modelio patikra
+Užtikrinama, kad programoje visada naudojama ta pati duomenų bazės jungtis.
 
 ---
 
-## 4. Išvados
-Darbas padėjo geriau suprasti OOP principų svarbą. Sistema veikia stabiliai, o paruošti testai padeda užtikrinti kodo kokybę ir loginį teisingumą.
+## 5. Išvados
+Darbas padėjo geriau suprasti OOP ir SOLID principų svarbą. Sistema veikia stabiliai, o paruošti testai padeda užtikrinti kodo kokybę.
+```
