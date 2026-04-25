@@ -97,4 +97,3 @@ Užtikrinama, kad programoje visada naudojama ta pati duomenų bazės jungtis.
 
 ## 5. Išvados
 Darbas padėjo geriau suprasti OOP ir SOLID principų svarbą. Sistema veikia stabiliai, o paruošti testai padeda užtikrinti kodo kokybę.
-```
